@@ -44,7 +44,7 @@ const Fridge = () => {
 
   return (
     <div className="fridge-app">
-      <h1>Виртуальный Холодильник</h1>
+      <h1>Холодильник</h1>
       
       <div className="fridge-container">
         {/* Холодильник */}
@@ -86,52 +86,56 @@ const Fridge = () => {
           )}
         </div>
 
-        {/* Панель управления */}
-        <div className="control-panel">
-          <button 
-            onClick={toggleDoor} 
-            className={`door-btn ${isOpen ? 'close' : 'open'}`}
-          >
-            {isOpen ? 'Закрыть холодильник' : 'Открыть холодильник'}
-          </button>
-          
-          <div className="add-item-form">
-            <input
-              type="text"
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              placeholder="Введите название продукта"
-              onKeyPress={(e) => e.key === 'Enter' && addItem()}
-            />
-            <button onClick={addItem}>Добавить в холодильник</button>
-          </div>
-        </div>
-
-        {/* Продукты снаружи холодильника */}
+        {/* Продукты снаружи холодильника - теперь горизонтально рядом */}
         {itemsOutside.length > 0 && (
           <div className="outside-items">
             <h3>Рядом с холодильником:</h3>
-            <div className="items-grid">
-              {itemsOutside.map(item => (
-                <div key={item.id} className="fridge-item outside">
-                  <span>{item.name}</span>
-                  <button 
-                    onClick={() => toggleItemPosition(item.id)}
-                    className="item-btn"
-                  >
-                    Положить
-                  </button>
-                  <button 
-                    onClick={() => removeItem(item.id)}
-                    className="item-btn delete"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              ))}
-            </div>
+            {itemsOutside.length === 0 ? (
+              <p>Нет продуктов снаружи</p>
+            ) : (
+              <div className="items-grid">
+                {itemsOutside.map(item => (
+                  <div key={item.id} className="fridge-item outside">
+                    <span>{item.name}</span>
+                    <button 
+                      onClick={() => toggleItemPosition(item.id)}
+                      className="item-btn"
+                    >
+                      Положить
+                    </button>
+                    <button 
+                      onClick={() => removeItem(item.id)}
+                      className="item-btn delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
+      </div>
+
+      {/* Панель управления - теперь отдельно внизу */}
+      <div className="control-panel">
+        <button 
+          onClick={toggleDoor} 
+          className={`door-btn ${isOpen ? 'close' : 'open'}`}
+        >
+          {isOpen ? 'Закрыть холодильник' : 'Открыть холодильник'}
+        </button>
+        
+        <div className="add-item-form">
+          <input
+            type="text"
+            value={newItemName}
+            onChange={(e) => setNewItemName(e.target.value)}
+            placeholder="Введите название продукта"
+            onKeyPress={(e) => e.key === 'Enter' && addItem()}
+          />
+          <button onClick={addItem}>Добавить</button>
+        </div>
       </div>
     </div>
   );
