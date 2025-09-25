@@ -1,0 +1,234 @@
+.fridge-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.fridge-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+
+/* Стили холодильника */
+.fridge {
+  width: 400px;
+  height: 600px;
+  background: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
+  border: 3px solid #999;
+  border-radius: 15px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  overflow: hidden; /* Важно: скрываем содержимое за дверцей */
+}
+
+.fridge-door {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f0f0 0%, #d0d0d0 100%);
+  border-radius: 12px;
+  position: absolute;
+  transition: transform 1s ease;
+  transform-origin: left;
+  z-index: 2; /* Дверца поверх содержимого */
+}
+
+.fridge.open .fridge-door {
+  transform: perspective(1000px) rotateY(-100deg);
+}
+
+.door-handle {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 60px;
+  background: #666;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.door-handle:hover {
+  background: #888;
+}
+
+/* Внутреннее пространство холодильника */
+.fridge-interior {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #e6f7ff 100%);
+  z-index: 1; /* Под дверцей */
+}
+
+.fridge-content {
+  padding: 20px;
+  height: 100%;
+}
+
+.fridge-content h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+/* Остальные стили остаются без изменений */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.fridge-item {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.fridge-item:hover {
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.fridge-item.outside {
+  border-color: #ff9800;
+  background: #fff3e0;
+}
+
+.item-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+
+.item-btn:hover {
+  background: #45a049;
+}
+
+.item-btn.delete {
+  background: #f44336;
+  padding: 5px;
+}
+
+.item-btn.delete:hover {
+  background: #da190b;
+}
+
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.door-btn {
+  padding: 15px 30px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.door-btn.open {
+  background: #4CAF50;
+  color: white;
+}
+
+.door-btn.close {
+  background: #ff9800;
+  color: white;
+}
+
+.door-btn:hover {
+  transform: scale(1.05);
+}
+
+.add-item-form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.add-item-form input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.add-item-form button {
+  padding: 10px 20px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-item-form button:hover {
+  background: #1976D2;
+}
+
+.outside-items {
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  border: 2px dashed #ccc;
+}
+
+.outside-items h3 {
+  color: #666;
+  margin-top: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fridge-item {
+  animation: fadeIn 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .fridge {
+    width: 300px;
+    height: 500px;
+  }
+  
+  .add-item-form {
+    flex-direction: column;
+  }
+  
+  .items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
