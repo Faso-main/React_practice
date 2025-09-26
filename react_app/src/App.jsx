@@ -239,11 +239,6 @@ const Fridge = () => {
           </button>
         </div>
       </div>
-
-      {/* Статистика */}
-      <div className="stats">
-        Всего продуктов: {items.length} | В холодильнике: {itemsInFridge.length} | Снаружи: {itemsOutside.length}
-      </div>
     </div>
   );
 };
