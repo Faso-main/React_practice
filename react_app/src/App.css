@@ -252,10 +252,10 @@
 .error-message {
   background: #ffebee;
   color: #c62828;
-  padding: 20px 30px;
+  padding: 20px 20px;
   border-radius: 5px;
   border: 1px solid #ffcdd2;
-  margin: 10px auto;
+  margin: 5px auto;
   max-width: 400px;
   display: flex;
   justify-content: space-between;
@@ -280,7 +280,7 @@
 .empty-message {
   color: #666;
   font-style: italic;
-  padding: 20px;
+  padding: 10px;
 }
 
 @keyframes fadeIn {
