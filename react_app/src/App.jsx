@@ -6,7 +6,7 @@ const Fridge = () => {
   const [items, setItems] = useState([]);
   const [newItemName, setNewItemName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [setError] = useState('');
 
   // Загрузка данных с сервера
   const fetchItems = async () => {
@@ -119,8 +119,6 @@ const Fridge = () => {
     }
   };
 
-  const clearError = () => setError('');
-
   const itemsInFridge = items.filter(item => item.is_in_fridge);
   const itemsOutside = items.filter(item => !item.is_in_fridge);
 
@@ -136,13 +134,7 @@ const Fridge = () => {
   return (
     <div className="fridge-app">
       <h1>Холодильник</h1>
-      
-      {error && (
-        <div className="error-message">
-          <span>{error}</span>
-          <button onClick={clearError} className="error-close">×</button>
-        </div>
-      )}
+    
       
       <div className="fridge-container">
         {/* Холодильник */}
