@@ -1,0 +1,16 @@
+{
+  "name": "fridge-app",
+  "version": "1.0.0",
+  "description": "Fridge app with React frontend and Express backend",
+  "scripts": {
+    "dev": "concurrently \"npm run react_app\" \"npm run backend\"",
+    "backend": "cd backend && npm run dev",
+    "react_app": "cd react_app && npm run dev",
+    "build": "cd backend && npm run build",
+    "start": "cd react_app && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../react_app && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
