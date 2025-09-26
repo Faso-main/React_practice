@@ -44,6 +44,15 @@ createTable();
 
 // API Routes
 
+app.get('/api/health', async (req, res) => {
+    try {
+        await pool.query('SELECT 1');
+        res.json({ status: 'OK', database: 'connected' });
+    } catch (error) {
+        res.status(500).json({ status: 'ERROR', database: 'disconnected' });
+    }
+});
+
 app.post('/api/items', async (req, res) => {
   try {
     const { name, isInFridge } = req.body;
