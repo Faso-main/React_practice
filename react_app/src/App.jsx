@@ -114,6 +114,7 @@ const Fridge = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
+      // Ваша логика (добавление товара и т.д.)
       addItem();
     }
   };
@@ -230,7 +231,7 @@ const Fridge = () => {
             type="text"
             value={newItemName}
             onChange={(e) => setNewItemName(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Введите название продукта"
             maxLength={50}
           />
