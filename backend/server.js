@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from React build
-app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use(express.static(path.join(__dirname, '../react_app/dist')));
 
 const pool = new Pool({
   user: 'fridge_user',
@@ -106,7 +106,7 @@ app.delete('/api/items/:id', async (req, res) => {
 
 // Serve React app for all other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../react_app/dist/index.html'));
 });
 
 app.listen(port, () => {
