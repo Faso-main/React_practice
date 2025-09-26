@@ -126,7 +126,7 @@ const Fridge = () => {
   if (loading) {
     return (
       <div className="fridge-app">
-        <h1>🍽️ Холодильник</h1>
+        <h1>Холодильник</h1>
         <div className="loading">Загрузка данных...</div>
       </div>
     );
@@ -134,12 +134,12 @@ const Fridge = () => {
 
   return (
     <div className="fridge-app">
-      <h1>🍽️ Холодильник</h1>
+      <h1>Холодильник</h1>
       
       {error && (
         <div className="error-message">
           <span>{error}</span>
-          <button onClick={clearError} className="error-close" title="Закрыть">×</button>
+          <button onClick={clearError} className="error-close">×</button>
         </div>
       )}
       
@@ -147,14 +147,14 @@ const Fridge = () => {
         {/* Холодильник */}
         <div className={`fridge ${isOpen ? 'open' : ''}`}>
           <div className="fridge-door">
-            <div className="door-handle" onClick={toggleDoor} title={isOpen ? 'Закрыть дверцу' : 'Открыть дверцу'}></div>
+            <div className="door-handle" onClick={toggleDoor}></div>
           </div>
           
           {/* Внутреннее содержимое холодильника */}
           {isOpen && (
             <div className="fridge-interior">
               <div className="fridge-content">
-                <h3>📦 В холодильнике:</h3>
+                <h3>В холодильнике:</h3>
                 {itemsInFridge.length === 0 ? (
                   <p className="empty-message">Холодильник пуст</p>
                 ) : (
@@ -166,16 +166,14 @@ const Fridge = () => {
                           <button 
                             onClick={() => toggleItemPosition(item.id)}
                             className="item-btn"
-                            title="Вынуть из холодильника"
                           >
                             Вынуть
                           </button>
                           <button 
                             onClick={() => removeItem(item.id)}
                             className="item-btn delete"
-                            title="Удалить продукт"
                           >
-                            🗑️
+                            Удалить
                           </button>
                         </div>
                       </div>
@@ -189,7 +187,7 @@ const Fridge = () => {
 
         {/* Продукты снаружи холодильника */}
         <div className="outside-items">
-          <h3>📤 Рядом с холодильником:</h3>
+          <h3>Рядом с холодильником:</h3>
           {itemsOutside.length === 0 ? (
             <p className="empty-message">Продуктов нет</p>
           ) : (
@@ -201,16 +199,14 @@ const Fridge = () => {
                     <button 
                       onClick={() => toggleItemPosition(item.id)}
                       className="item-btn"
-                      title="Положить в холодильник"
                     >
                       Положить
                     </button>
                     <button 
                       onClick={() => removeItem(item.id)}
                       className="item-btn delete"
-                      title="Удалить продукт"
                     >
-                      🗑️
+                      Удалить
                     </button>
                   </div>
                 </div>
@@ -225,9 +221,8 @@ const Fridge = () => {
         <button 
           onClick={toggleDoor} 
           className={`door-btn ${isOpen ? 'close' : 'open'}`}
-          title={isOpen ? 'Закрыть холодильник' : 'Открыть холодильник'}
         >
-          {isOpen ? '🚪 Закрыть холодильник' : '🚪 Открыть холодильник'}
+          {isOpen ? 'Закрыть холодильник' : 'Открыть холодильник'}
         </button>
         
         <div className="add-item-form">
@@ -236,17 +231,17 @@ const Fridge = () => {
             value={newItemName}
             onChange={(e) => setNewItemName(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Введите название продукта..."
+            placeholder="Введите название продукта"
             maxLength={50}
           />
-          <button onClick={addItem} title="Добавить продукт в холодильник">
-            ➕ Добавить
+          <button onClick={addItem}>
+            Добавить
           </button>
         </div>
       </div>
 
       {/* Статистика */}
-      <div style={{ marginTop: '20px', color: '#666', fontSize: '14px' }}>
+      <div className="stats">
         Всего продуктов: {items.length} | В холодильнике: {itemsInFridge.length} | Снаружи: {itemsOutside.length}
       </div>
     </div>
