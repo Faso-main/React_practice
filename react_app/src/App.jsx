@@ -6,24 +6,44 @@ const Fridge = () => {
   const [items, setItems] = useState([]);
   const [newItemName, setNewItemName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(''); // ИСПРАВЛЕНО: добавлена переменная error
+  const [error, setError] = useState('');
+  const [pythonMessage, setPythonMessage] = useState(''); // Новое состояние для Python сообщения
 
-  // Загрузка данных с сервера
+  // Функция проверки связи с Python
+  const testPythonConnection = async () => {
+    try {
+      console.log('Проверка связи с Python...');
+      const response = await fetch('http://localhost:8000/api/python-message');
+      
+      if (!response.ok) {
+        throw new Error(`Python сервер не отвечает: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Ответ от Python:', data);
+      setPythonMessage(data.text);
+      setError('');
+      
+      // Автоматически скрываем сообщение через 5 секунд
+      setTimeout(() => setPythonMessage(''), 5000);
+      
+    } catch (err) {
+      console.error('Ошибка связи с Python:', err);
+      setPythonMessage('❌ Python сервер недоступен');
+    }
+  };
+
+  // Загрузка данных с сервера (основной бэкенд)
   const fetchItems = async () => {
     try {
       setLoading(true);
-      console.log('Загрузка данных с сервера...'); // Добавим логирование
-      
       const response = await fetch('/api/items');
-      console.log('Статус ответа:', response.status); // Логирование статуса
       
       if (!response.ok) {
         throw new Error(`Ошибка загрузки: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('Получены данные:', data); // Логирование данных
-      
       setItems(data);
       setError('');
     } catch (err) {
@@ -35,10 +55,10 @@ const Fridge = () => {
   };
 
   useEffect(() => {
-    console.log('Компонент монтирован, загружаем данные...');
     fetchItems();
   }, []);
 
+  // Остальные функции остаются без изменений
   const toggleDoor = () => {
     setIsOpen(!isOpen);
   };
@@ -124,7 +144,10 @@ const Fridge = () => {
     }
   };
 
-  const clearError = () => setError('');
+  const clearError = () => {
+    setError('');
+    setPythonMessage('');
+  };
 
   const itemsInFridge = items.filter(item => item.is_in_fridge);
   const itemsOutside = items.filter(item => !item.is_in_fridge);
@@ -140,8 +163,17 @@ const Fridge = () => {
 
   return (
     <div className="fridge-app">
-      <h1>Холодильник</h1>
+      <h1>Холодильник + Python тест</h1>
       
+      {/* Сообщение от Python */}
+      {pythonMessage && (
+        <div className="python-message">
+          🐍 {pythonMessage}
+          <button onClick={() => setPythonMessage('')} className="error-close">×</button>
+        </div>
+      )}
+      
+      {/* Сообщение об ошибке */}
       {error && (
         <div className="error-message">
           <span>{error}</span>
@@ -244,6 +276,23 @@ const Fridge = () => {
             Добавить
           </button>
         </div>
+
+        {/* Кнопка проверки связи с Python */}
+        <button 
+          onClick={testPythonConnection}
+          style={{
+            background: '#ff9800',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}
+        >
+          Проверить связь с Python
+        </button>
       </div>
     </div>
   );
