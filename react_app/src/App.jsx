@@ -245,11 +245,6 @@ const Fridge = () => {
           </button>
         </div>
       </div>
-
-      {/* Статистика для отладки */}
-      <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-        Загружено продуктов: {items.length} | В холодильнике: {itemsInFridge.length} | Снаружи: {itemsOutside.length}
-      </div>
     </div>
   );
 };
