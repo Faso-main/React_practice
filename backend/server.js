@@ -53,21 +53,14 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-app.post('/api/items', async (req, res) => {
+app.get('/api/items', async (req, res) => {
   try {
-    const { name, isInFridge } = req.body;
-    
-    if (!name?.trim()) {
-      return res.status(400).json({ error: 'Name is required' });
-    }
-    
-    const result = await pool.query(
-      'INSERT INTO fridge_items (name, is_in_fridge) VALUES ($1, $2) RETURNING *',
-      [name.trim(), isInFridge ?? true]
-    );
-    
-    res.status(201).json(result.rows[0]);
+    console.log('GET /api/items - запрос всех продуктов'); // Логирование
+    const result = await pool.query('SELECT * FROM fridge_items ORDER BY created_at DESC');
+    console.log(`Найдено продуктов: ${result.rows.length}`); // Логирование количества
+    res.json(result.rows);
   } catch (err) {
+    console.error('Ошибка при получении продуктов:', err);
     res.status(500).json({ error: 'Database error' });
   }
 });
