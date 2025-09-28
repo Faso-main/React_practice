@@ -9,16 +9,15 @@
 .python-message {
   background: #e8f5e8;
   color: #2e7d32;
-  padding: 12px 15px;
+  padding: 10px 10px;
   border-radius: 5px;
   border: 1px solid #4caf50;
-  margin: 10px auto;
+  margin: 2px auto;
   max-width: 400px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  animation: fadeIn 0.5s ease;
 }
 
 .fridge-container {

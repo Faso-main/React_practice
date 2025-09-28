@@ -29,7 +29,7 @@ const Fridge = () => {
       
     } catch (err) {
       console.error('Ошибка связи с Python:', err);
-      setPythonMessage('❌ Python сервер недоступен');
+      setPythonMessage('Python сервер недоступен');
     }
   };
 
@@ -168,7 +168,7 @@ const Fridge = () => {
       {/* Сообщение от Python */}
       {pythonMessage && (
         <div className="python-message">
-          🐍 {pythonMessage}
+          {pythonMessage}
           <button onClick={() => setPythonMessage('')} className="error-close">×</button>
         </div>
       )}
@@ -275,24 +275,23 @@ const Fridge = () => {
           <button onClick={addItem}>
             Добавить
           </button>
+                  {/* Кнопка проверки связи с Python */}
+          <button 
+            onClick={testPythonConnection}
+            style={{
+              background: '#ff9800',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+          >
+            Проверить связь с Python
+          </button>
         </div>
-
-        {/* Кнопка проверки связи с Python */}
-        <button 
-          onClick={testPythonConnection}
-          style={{
-            background: '#ff9800',
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold'
-          }}
-        >
-          Проверить связь с Python
-        </button>
       </div>
     </div>
   );
