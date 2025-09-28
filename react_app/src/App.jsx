@@ -6,19 +6,24 @@ const Fridge = () => {
   const [items, setItems] = useState([]);
   const [newItemName, setNewItemName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [setError] = useState('');
+  const [error, setError] = useState(''); // ИСПРАВЛЕНО: добавлена переменная error
 
   // Загрузка данных с сервера
   const fetchItems = async () => {
     try {
       setLoading(true);
+      console.log('Загрузка данных с сервера...'); // Добавим логирование
+      
       const response = await fetch('/api/items');
+      console.log('Статус ответа:', response.status); // Логирование статуса
       
       if (!response.ok) {
         throw new Error(`Ошибка загрузки: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log('Получены данные:', data); // Логирование данных
+      
       setItems(data);
       setError('');
     } catch (err) {
@@ -30,6 +35,7 @@ const Fridge = () => {
   };
 
   useEffect(() => {
+    console.log('Компонент монтирован, загружаем данные...');
     fetchItems();
   }, []);
 
@@ -114,10 +120,11 @@ const Fridge = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      // Ваша логика (добавление товара и т.д.)
       addItem();
     }
   };
+
+  const clearError = () => setError('');
 
   const itemsInFridge = items.filter(item => item.is_in_fridge);
   const itemsOutside = items.filter(item => !item.is_in_fridge);
@@ -134,7 +141,13 @@ const Fridge = () => {
   return (
     <div className="fridge-app">
       <h1>Холодильник</h1>
-    
+      
+      {error && (
+        <div className="error-message">
+          <span>{error}</span>
+          <button onClick={clearError} className="error-close">×</button>
+        </div>
+      )}
       
       <div className="fridge-container">
         {/* Холодильник */}
@@ -231,6 +244,11 @@ const Fridge = () => {
             Добавить
           </button>
         </div>
+      </div>
+
+      {/* Статистика для отладки */}
+      <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+        Загружено продуктов: {items.length} | В холодильнике: {itemsInFridge.length} | Снаружи: {itemsOutside.length}
       </div>
     </div>
   );
