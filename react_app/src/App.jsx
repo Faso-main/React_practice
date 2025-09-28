@@ -163,7 +163,7 @@ const Fridge = () => {
 
   return (
     <div className="fridge-app">
-      <h1>Холодильник + Python тест</h1>
+      <h1>Холодильник</h1>
       
       {/* Сообщение от Python */}
       {pythonMessage && (
