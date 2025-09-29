@@ -1,0 +1,60 @@
+potsgres product DB(tree-like) for TenderHack practice
+
+# Подключаемся к базе
+sudo -u postgres psql -d fridge_db
+
+-- Очистим таблицу и добавим структурированные данные
+TRUNCATE TABLE fridge_items RESTART IDENTITY;
+
+-- Добавим продукты по категориям
+INSERT INTO fridge_items (name, is_in_fridge) VALUES 
+  -- Молочные продукты
+  ('Молоко', true),
+  ('Сыр', true),
+  ('Йогурт', true),
+  ('Кефир', false),
+  ('Творог', true),
+  ('Сметана', true),
+  ('Сливочное масло', false),
+  
+  -- Овощи
+  ('Помидоры', false),
+  ('Огурцы', false),
+  ('Картофель', true),
+  ('Морковь', true),
+  ('Лук', true),
+  ('Капуста', false),
+  ('Перец болгарский', false),
+  
+  -- Фрукты
+  ('Яблоки', false),
+  ('Бананы', false),
+  ('Апельсины', true),
+  ('Лимоны', true),
+  ('Груши', false),
+  
+  -- Мясные продукты
+  ('Колбаса', false),
+  ('Сосиски', true),
+  ('Курица', true),
+  ('Говядина', false),
+  ('Ветчина', true),
+  
+  -- Напитки
+  ('Апельсиновый сок', false),
+  ('Вода минеральная', true),
+  ('Чай зеленый', true),
+  ('Кофе', false),
+  
+  -- Хлебобулочные
+  ('Хлеб белый', true),
+  ('Хлеб черный', false),
+  ('Булочки', true),
+  
+  -- Яйца
+  ('Яйца куриные', true);
+
+-- Проверим данные
+SELECT name, is_in_fridge FROM fridge_items ORDER BY name;
+
+\q
