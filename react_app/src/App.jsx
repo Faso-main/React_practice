@@ -13,7 +13,7 @@ const Fridge = () => {
   const testPythonConnection = async () => {
     try {
       console.log('Проверка связи с Python...');
-      const response = await fetch('http://faso312.ru/api/python-message');
+      const response = await fetch('https://faso312.ru/api/python-message');
       
       if (!response.ok) {
         throw new Error(`Python сервер не отвечает: ${response.status}`);
