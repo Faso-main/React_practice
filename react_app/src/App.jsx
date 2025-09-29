@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import './Search_panel.css';
 
 const Fridge = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,48 +8,94 @@ const Fridge = () => {
   const [newItemName, setNewItemName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [pythonMessage, setPythonMessage] = useState(''); // Новое состояние для Python сообщения
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [statistics, setStatistics] = useState(null);
 
-  // Функция проверки связи с Python
-  const testPythonConnection = async () => {
+  // Python API URL
+  const PYTHON_API_URL = 'https://faso312.ru';
+
+  // Загрузка категорий из Python
+  const loadCategories = async () => {
     try {
-      console.log('Проверка связи с Python...');
-      const response = await fetch('https://faso312.ru/api/python-message');
-      
-      if (!response.ok) {
-        throw new Error(`Python сервер не отвечает: ${response.status}`);
-      }
-      
+      const response = await fetch(`${PYTHON_API_URL}/api/categories`);
       const data = await response.json();
-      console.log('Ответ от Python:', data);
-      setPythonMessage(data.text);
-      setError('');
-      
-      // Автоматически скрываем сообщение через 5 секунд
-      setTimeout(() => setPythonMessage(''), 5000);
-      
+      setCategories(data.categories);
     } catch (err) {
-      console.error('Ошибка связи с Python:', err);
-      setPythonMessage('Python сервер недоступен');
+      console.error('Ошибка загрузки категорий:', err);
     }
   };
 
-  // Загрузка данных с сервера (основной бэкенд)
-  const fetchItems = async () => {
+  // Загрузка статистики
+  const loadStatistics = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/items');
+      const response = await fetch(`${PYTHON_API_URL}/api/statistics`);
+      const data = await response.json();
+      setStatistics(data);
+    } catch (err) {
+      console.error('Ошибка загрузки статистики:', err);
+    }
+  };
+
+  // Поиск через Python
+  const smartSearch = async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults(null);
+      return;
+    }
+
+    try {
+      console.log('Поиск через Python:', searchQuery);
+      
+      const response = await fetch(`${PYTHON_API_URL}/api/search-products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: searchQuery
+        }),
+      });
       
       if (!response.ok) {
-        throw new Error(`Ошибка загрузки: ${response.status}`);
+        throw new Error('Ошибка поиска');
       }
       
       const data = await response.json();
+      setSearchResults(data);
+      setError('');
+      
+      console.log('Результаты поиска:', data);
+      
+    } catch (err) {
+      console.error('Ошибка поиска:', err);
+      setError('Ошибка при поиске продуктов');
+      setSearchResults(null);
+    }
+  };
+
+  // Загрузка данных через Python из PostgreSQL
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      console.log('Загрузка данных из PostgreSQL через Python...');
+      
+      const response = await fetch(`${PYTHON_API_URL}/api/database-items`);
+      
+      if (!response.ok) {
+        throw new Error(`Python сервер недоступен: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Данные из PostgreSQL:', data);
+      
       setItems(data);
       setError('');
+      loadStatistics();
     } catch (err) {
       console.error('Error fetching items:', err);
-      setError('Ошибка загрузки данных. Проверьте подключение к серверу.');
+      setError('Ошибка загрузки данных из базы данных');
     } finally {
       setLoading(false);
     }
@@ -56,9 +103,9 @@ const Fridge = () => {
 
   useEffect(() => {
     fetchItems();
+    loadCategories();
   }, []);
 
-  // Остальные функции остаются без изменений
   const toggleDoor = () => {
     setIsOpen(!isOpen);
   };
@@ -91,6 +138,8 @@ const Fridge = () => {
       setItems([newItem, ...items]);
       setNewItemName('');
       setError('');
+      // Обновляем данные после добавления
+      setTimeout(fetchItems, 500);
     } catch (err) {
       console.error('Error adding item:', err);
       setError(err.message || 'Ошибка добавления продукта');
@@ -111,6 +160,8 @@ const Fridge = () => {
       
       setItems(items.filter(item => item.id !== id));
       setError('');
+      // Обновляем данные после удаления
+      setTimeout(fetchItems, 500);
     } catch (err) {
       console.error('Error deleting item:', err);
       setError('Ошибка удаления продукта');
@@ -144,19 +195,32 @@ const Fridge = () => {
     }
   };
 
-  const clearError = () => {
-    setError('');
-    setPythonMessage('');
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      smartSearch();
+    }
   };
 
-  const itemsInFridge = items.filter(item => item.is_in_fridge);
-  const itemsOutside = items.filter(item => !item.is_in_fridge);
+  const clearError = () => {
+    setError('');
+    setSearchResults(null);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchResults(null);
+  };
+
+  // Фильтруем товары для отображения
+  const displayItems = searchResults ? searchResults.items : items;
+  const itemsInFridge = displayItems.filter(item => item.is_in_fridge);
+  const itemsOutside = displayItems.filter(item => !item.is_in_fridge);
 
   if (loading) {
     return (
       <div className="fridge-app">
-        <h1>Холодильник</h1>
-        <div className="loading">Загрузка данных...</div>
+      <h1>Холодильник</h1>
+        <div className="loading">Загрузка данных из базы...</div>
       </div>
     );
   }
@@ -165,19 +229,85 @@ const Fridge = () => {
     <div className="fridge-app">
       <h1>Холодильник</h1>
       
-      {/* Сообщение от Python */}
-      {pythonMessage && (
-        <div className="python-message">
-          {pythonMessage}
-          <button onClick={() => setPythonMessage('')} className="error-close">×</button>
-        </div>
-      )}
-      
-      {/* Сообщение об ошибке */}
       {error && (
         <div className="error-message">
           <span>{error}</span>
           <button onClick={clearError} className="error-close">×</button>
+        </div>
+      )}
+
+      {/* Панель поиска */}
+      <div className="search-panel">
+        <h3>Поиск продуктов</h3>
+        <div className="search-form">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleSearchKeyPress}
+            placeholder="Введите категорию или название продукта"
+            style={{flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
+          />
+          <button 
+            onClick={smartSearch}
+            className="search-button"
+          >
+            Поиск
+          </button>
+          {searchResults && (
+            <button 
+              onClick={clearSearch}
+              className="clear-button"
+            >
+              Очистить
+            </button>
+          )}
+        </div>
+
+        {/* Категории */}
+        <div className="quick-categories">
+          <span>Категории: </span>
+          {categories.map(category => (
+            <button
+              key={category}
+              onClick={() => {
+                setSearchQuery(category);
+                setTimeout(smartSearch, 100);
+              }}
+              className="category-tag"
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Результаты поиска */}
+        {searchResults && (
+          <div className="search-results">
+            <h4>
+              Найдено {searchResults.found_count} товаров по запросу: 
+              "{searchResults.search_query}"
+            </h4>
+            {searchResults.items.length === 0 && (
+              <p className="empty-message">Товары не найдены</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Статистика */}
+      {statistics && (
+        <div className="statistics-panel">
+          <h4>Статистика: Всего продуктов - {statistics.total_products}</h4>
+          <div className="stats-grid">
+            {Object.entries(statistics.categories).map(([category, stats]) => (
+              <div key={category} className="stat-item">
+                <span className="stat-category">{category}:</span>
+                <span className="stat-count">{stats.total} шт.</span>
+                <span className="stat-fridge">({stats.in_fridge} в холодильнике)</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       
@@ -188,7 +318,6 @@ const Fridge = () => {
             <div className="door-handle" onClick={toggleDoor}></div>
           </div>
           
-          {/* Внутреннее содержимое холодильника */}
           {isOpen && (
             <div className="fridge-interior">
               <div className="fridge-content">
@@ -199,7 +328,10 @@ const Fridge = () => {
                   <div className="items-grid">
                     {itemsInFridge.map(item => (
                       <div key={item.id} className="fridge-item">
-                        <span>{item.name}</span>
+                        <span className="item-name">{item.name}</span>
+                        {item.category && (
+                          <span className="item-category">{item.category}</span>
+                        )}
                         <div className="item-buttons">
                           <button 
                             onClick={() => toggleItemPosition(item.id)}
@@ -223,7 +355,7 @@ const Fridge = () => {
           )}
         </div>
 
-        {/* Продукты снаружи холодильника */}
+        {/* Продукты снаружи */}
         <div className="outside-items">
           <h3>Рядом с холодильником:</h3>
           {itemsOutside.length === 0 ? (
@@ -232,7 +364,10 @@ const Fridge = () => {
             <div className="items-grid">
               {itemsOutside.map(item => (
                 <div key={item.id} className="fridge-item outside">
-                  <span>{item.name}</span>
+                  <span className="item-name">{item.name}</span>
+                  {item.category && (
+                    <span className="item-category">{item.category}</span>
+                  )}
                   <div className="item-buttons">
                     <button 
                       onClick={() => toggleItemPosition(item.id)}
@@ -268,30 +403,21 @@ const Fridge = () => {
             type="text"
             value={newItemName}
             onChange={(e) => setNewItemName(e.target.value)}
-            onKeyDown={handleKeyPress}
+            onKeyUp ={handleKeyPress}
             placeholder="Введите название продукта"
             maxLength={50}
           />
           <button onClick={addItem}>
-            Добавить
+            Добавить в базу
           </button>
-                  {/* Кнопка проверки связи с Python */}
           <button 
-            onClick={testPythonConnection}
-            style={{
-              background: '#ff9800',
-              color: 'white',
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            Проверить связь с Python
-          </button>
+          onClick={fetchItems}
+        >
+          Обновить данные
+        </button>
         </div>
+
+
       </div>
     </div>
   );

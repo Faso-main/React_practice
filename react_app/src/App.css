@@ -210,9 +210,9 @@
 
 .add-item-form {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .add-item-form input {
