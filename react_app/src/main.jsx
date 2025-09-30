@@ -4,7 +4,7 @@ import Fridge from './App.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode> {/*Используеться для отладки*/}
+  <React.StrictMode> 
     <Fridge />
-  </React.StrictMode>, {/*Используеться для отладки*/}
+  </React.StrictMode>, 
 )
