@@ -85,7 +85,7 @@ async def get_database_items():
         print(f"Ошибка при получении данных: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
-@app.get("/api/{name}")
+"""@app.get("/api/add-item/{name}")
 async def add_item():
     try:
         conn = get_db_connection()
@@ -98,8 +98,8 @@ async def add_item():
         conn.close()
         
     except Exception as e:
-        print(f"Ошибка при добавлении: {e}")
-        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+        print(f"Ошибка при : {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")"""
 
 @app.get("/api/filter-by-category/{category}")
 async def filter_by_category(category: str):
