@@ -19,7 +19,7 @@ const Fridge = () => {
   // Загрузка категорий из Python
   const loadCategories = async () => {
     try {
-      const response = await fetch(`${PYTHON_API_URL}/api/categories`);
+      const response = await fetch(`${PYTHON_API_URL}/py/categories`);
       const data = await response.json();
       setCategories(data.categories);
     } catch (err) {
@@ -30,7 +30,7 @@ const Fridge = () => {
   // Загрузка статистики
   const loadStatistics = async () => {
     try {
-      const response = await fetch(`${PYTHON_API_URL}/api/statistics`);
+      const response = await fetch(`${PYTHON_API_URL}/py/statistics`);
       const data = await response.json();
       setStatistics(data);
     } catch (err) {
@@ -48,7 +48,7 @@ const Fridge = () => {
     try {
       console.log('Поиск через Python:', searchQuery);
       
-      const response = await fetch(`${PYTHON_API_URL}/api/search-products`, {
+      const response = await fetch(`${PYTHON_API_URL}/py/search-products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ const Fridge = () => {
       setLoading(true);
       console.log('Загрузка данных из PostgreSQL через Python...');
       
-      const response = await fetch(`${PYTHON_API_URL}/api/database-items`);
+      const response = await fetch(`${PYTHON_API_URL}/py/database-items`);
       
       if (!response.ok) {
         throw new Error(`Python сервер недоступен: ${response.status}`);
@@ -118,7 +118,7 @@ const Fridge = () => {
     }
     
     try {
-      const response = await fetch('/api/items', {
+      const response = await fetch('/py/items', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const Fridge = () => {
     if (!window.confirm('Удалить этот продукт?')) return;
     
     try {
-      const response = await fetch(`/api/items/${id}`, {
+      const response = await fetch(`/py/items/${id}`, {
         method: 'DELETE',
       });
       
@@ -170,7 +170,7 @@ const Fridge = () => {
 
   const toggleItemPosition = async (id) => {
     try {
-      const response = await fetch(`/api/items/${id}/toggle`, {
+      const response = await fetch(`/py/items/${id}/toggle`, {
         method: 'PATCH',
       });
       

@@ -58,7 +58,7 @@ async def root():
     }
 
 # Получает все товары из базы данных с категориями
-@app.get("/api/database-items")
+@app.get("/py/database-items")
 async def get_database_items():
     try:
         conn = get_db_connection()
@@ -85,7 +85,7 @@ async def get_database_items():
         print(f"Ошибка при получении данных: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
-@app.get("/api/filter-by-category/{category}")
+@app.get("/py/filter-by-category/{category}")
 async def filter_by_category(category: str):
     """Фильтрует товары по категории из базы данных"""
     try:
@@ -120,7 +120,7 @@ async def filter_by_category(category: str):
 
 
 # Возвращает список всех категорий
-@app.get("/api/categories")
+@app.get("/py/categories")
 async def get_categories():
     return {
         "categories": list(PRODUCT_CATEGORIES.keys()),
@@ -128,7 +128,7 @@ async def get_categories():
     }
 
 # Поиск продуктов по категории или названию в базе данных
-@app.post("/api/search-products")
+@app.post("/py/search-products")
 async def search_products(search_data: dict):
     search_query = search_data.get("query", "").lower().strip()
     
@@ -174,7 +174,7 @@ async def search_products(search_data: dict):
 
 
 # Возвращает статистику по категориям
-@app.get("/api/statistics")
+@app.get("/py/statistics")
 async def get_statistics():
     try:
         conn = get_db_connection()
