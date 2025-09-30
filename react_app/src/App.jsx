@@ -110,6 +110,7 @@ const Fridge = () => {
     setIsOpen(!isOpen);
   };
 
+
   const addItem = async () => {
     const itemName = newItemName.trim();
     if (itemName === '') {
@@ -118,7 +119,7 @@ const Fridge = () => {
     }
     
     try {
-      const response = await fetch('/py/items', {
+      const response = await fetch(`${PYTHON_API_URL}/py/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,15 +132,15 @@ const Fridge = () => {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при добавлении');
+        throw new Error(errorData.detail || 'Ошибка при добавлении');
       }
       
       const newItem = await response.json();
       setItems([newItem, ...items]);
       setNewItemName('');
       setError('');
-      // Обновляем данные после добавления
-      setTimeout(fetchItems, 500);
+      console.log('Продукт добавлен через Python API:', newItem);
+      
     } catch (err) {
       console.error('Error adding item:', err);
       setError(err.message || 'Ошибка добавления продукта');
@@ -189,6 +190,8 @@ const Fridge = () => {
     }
   };
 
+
+  
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       addItem();

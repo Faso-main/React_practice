@@ -85,21 +85,39 @@ async def get_database_items():
         print(f"Ошибка при получении данных: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
-"""@app.get("/api/add-item/{name}")
-async def add_item():
+@app.post("/api/items")
+async def create_item(item_data: dict):
+    """Добавление нового товара в базу данных"""
     try:
+        name = item_data.get("name", "").strip()
+        is_in_fridge = item_data.get("isInFridge", True)
+        
+        if not name:
+            raise HTTPException(status_code=400, detail="Название товара обязательно")
+        
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        cursor.execute("INSERT INTO fridge_items (name, is_in_fridge) VALUES ('{name}', true)")
-        all_items = cursor.fetchall()
+        cursor.execute(
+            "INSERT INTO fridge_items (name, is_in_fridge) VALUES (%s, %s) RETURNING *",
+            (name, is_in_fridge)
+        )
+        
+        new_item = cursor.fetchone()
+        conn.commit()
         
         cursor.close()
         conn.close()
         
+        if new_item:
+            print(f"Добавлен новый товар: {name}")
+            return dict(new_item)
+        else:
+            raise HTTPException(status_code=500, detail="Не удалось создать товар")
+        
     except Exception as e:
-        print(f"Ошибка при : {e}")
-        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")"""
+        print(f"Ошибка при добавлении товара: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
 @app.get("/api/filter-by-category/{category}")
 async def filter_by_category(category: str):
