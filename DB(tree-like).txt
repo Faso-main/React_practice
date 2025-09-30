@@ -6,6 +6,24 @@ sudo -u postgres psql -d fridge_db
 -- Очистим таблицу и добавим структурированные данные
 TRUNCATE TABLE fridge_items RESTART IDENTITY;
 
+-- Добавить один продукт
+INSERT INTO fridge_items (name, is_in_fridge) VALUES ('Молоко', true);
+
+-- Удалить по ID
+DELETE FROM fridge_items WHERE id = 5;
+
+-- Изменить название продукта
+UPDATE fridge_items SET name = 'Молоко 2.5%' WHERE name = 'Молоко';
+
+-- Удалить по названию
+DELETE FROM fridge_items WHERE name = 'Яблоки';
+
+-- Удалить все продукты, которых нет в холодильнике
+DELETE FROM fridge_items WHERE is_in_fridge = false;
+
+-- Удалить все продукты (очистить холодильник)
+DELETE FROM fridge_items;
+
 -- Добавим продукты по категориям
 INSERT INTO fridge_items (name, is_in_fridge) VALUES 
   -- Молочные продукты

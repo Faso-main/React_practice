@@ -85,6 +85,22 @@ async def get_database_items():
         print(f"Ошибка при получении данных: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
+@app.get("/api/{name}")
+async def add_item():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cursor.execute("INSERT INTO fridge_items (name, is_in_fridge) VALUES ('{name}', true)")
+        all_items = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+    except Exception as e:
+        print(f"Ошибка при добавлении: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+
 @app.get("/api/filter-by-category/{category}")
 async def filter_by_category(category: str):
     """Фильтрует товары по категории из базы данных"""
