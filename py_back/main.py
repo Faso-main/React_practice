@@ -7,6 +7,8 @@ from datetime import datetime
 
 app = FastAPI(title="Database Python API")
 
+RESOURCE = 'api'
+
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
@@ -58,7 +60,7 @@ async def root():
     }
 
 # Получает все товары из базы данных с категориями
-@app.get("/api/database-items")
+@app.get("/{RESOURCE}/database-items")
 async def get_database_items():
     try:
         conn = get_db_connection()
@@ -85,25 +87,116 @@ async def get_database_items():
         print(f"Ошибка при получении данных: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
-"""@app.get("/api/add-item/{name}")
-async def add_item():
+@app.post("/{RESOURCE}/items/add")
+async def add_item(item_data: dict):
     try:
+        name = item_data.get("name", "").strip()
+        is_in_fridge = item_data.get("isInFridge", True)
+        
+        if not name:
+            raise HTTPException(status_code=400, detail="Название товара обязательно")
+        
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        cursor.execute("INSERT INTO fridge_items (name, is_in_fridge) VALUES ('{name}', true)")
-        all_items = cursor.fetchall()
+        cursor.execute(
+            "INSERT INTO fridge_items (name, is_in_fridge) VALUES (%s, %s) RETURNING *",
+            (name, is_in_fridge)
+        )
+        
+        new_item = cursor.fetchone()
+        conn.commit()
         
         cursor.close()
         conn.close()
         
+        if new_item:
+            print(f"Добавлен новый товар: {name}")
+            return dict(new_item)
+        else:
+            raise HTTPException(status_code=500, detail="Не удалось создать товар")
+        
     except Exception as e:
-        print(f"Ошибка при : {e}")
-        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")"""
+        print(f"Ошибка при добавлении товара: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
-@app.get("/api/filter-by-category/{category}")
+@app.patch("/{RESOURCE}/items/move/{item_id}/toggle")
+async def toggle_item_position(item_id: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Получаем текущее состояние
+        cursor.execute("SELECT is_in_fridge FROM fridge_items WHERE id = %s", (item_id,))
+        current_item = cursor.fetchone()
+        
+        if not current_item:
+            raise HTTPException(status_code=404, detail="Товар не найден")
+        
+        # Меняем состояние
+        new_state = not current_item["is_in_fridge"]
+        cursor.execute(
+            "UPDATE fridge_items SET is_in_fridge = %s WHERE id = %s RETURNING *",
+            (new_state, item_id)
+        )
+        
+        updated_item = cursor.fetchone()
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        if updated_item:
+            action = "положен в холодильник" if new_state else "вынут из холодильника"
+            print(f"Товар '{updated_item['name']}' {action}")
+            return dict(updated_item)
+        else:
+            raise HTTPException(status_code=500, detail="Не удалось обновить товар")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ошибка при перемещении товара: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+
+@app.delete("/{RESOURCE}/items/remove/{item_id}")
+async def delete_item(item_id: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Сначала получаем информацию о товаре для логов
+        cursor.execute("SELECT name FROM fridge_items WHERE id = %s", (item_id,))
+        item = cursor.fetchone()
+        
+        if not item:
+            raise HTTPException(status_code=404, detail="Товар не найден")
+        
+        # Удаляем товар
+        cursor.execute("DELETE FROM fridge_items WHERE id = %s RETURNING *", (item_id,))
+        deleted_item = cursor.fetchone()
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        if deleted_item:
+            print(f"Удален товар: {item['name']}")
+            return {
+                "message": "Товар успешно удален",
+                "deleted_item": dict(deleted_item)
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Не удалось удалить товар")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ошибка при удалении товара: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+
+@app.get("/{RESOURCE}/filter-by-category/{category}")
 async def filter_by_category(category: str):
-    """Фильтрует товары по категории из базы данных"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -136,7 +229,7 @@ async def filter_by_category(category: str):
 
 
 # Возвращает список всех категорий
-@app.get("/api/categories")
+@app.get("/{RESOURCE}/categories")
 async def get_categories():
     return {
         "categories": list(PRODUCT_CATEGORIES.keys()),
@@ -144,7 +237,7 @@ async def get_categories():
     }
 
 # Поиск продуктов по категории или названию в базе данных
-@app.post("/api/search-products")
+@app.post("/{RESOURCE}/search-products")
 async def search_products(search_data: dict):
     search_query = search_data.get("query", "").lower().strip()
     
@@ -190,7 +283,7 @@ async def search_products(search_data: dict):
 
 
 # Возвращает статистику по категориям
-@app.get("/api/statistics")
+@app.get("/{RESOURCE}/statistics")
 async def get_statistics():
     try:
         conn = get_db_connection()

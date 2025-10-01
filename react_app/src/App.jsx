@@ -15,11 +15,12 @@ const Fridge = () => {
 
   // Python API URL
   const PYTHON_API_URL = 'https://faso312.ru';
+  const RESOURCE = 'py';
 
   // Загрузка категорий из Python
   const loadCategories = async () => {
     try {
-      const response = await fetch(`${PYTHON_API_URL}/py/categories`);
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/categories`);
       const data = await response.json();
       setCategories(data.categories);
     } catch (err) {
@@ -30,7 +31,7 @@ const Fridge = () => {
   // Загрузка статистики
   const loadStatistics = async () => {
     try {
-      const response = await fetch(`${PYTHON_API_URL}/py/statistics`);
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/statistics`);
       const data = await response.json();
       setStatistics(data);
     } catch (err) {
@@ -48,7 +49,7 @@ const Fridge = () => {
     try {
       console.log('Поиск через Python:', searchQuery);
       
-      const response = await fetch(`${PYTHON_API_URL}/py/search-products`, {
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/search-products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ const Fridge = () => {
       setLoading(true);
       console.log('Загрузка данных из PostgreSQL через Python...');
       
-      const response = await fetch(`${PYTHON_API_URL}/py/database-items`);
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/database-items`);
       
       if (!response.ok) {
         throw new Error(`Python сервер недоступен: ${response.status}`);
@@ -110,6 +111,7 @@ const Fridge = () => {
     setIsOpen(!isOpen);
   };
 
+
   const addItem = async () => {
     const itemName = newItemName.trim();
     if (itemName === '') {
@@ -118,7 +120,7 @@ const Fridge = () => {
     }
     
     try {
-      const response = await fetch('/py/items', {
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,64 +133,71 @@ const Fridge = () => {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при добавлении');
+        throw new Error(errorData.detail || 'Ошибка при добавлении');
       }
       
       const newItem = await response.json();
       setItems([newItem, ...items]);
       setNewItemName('');
       setError('');
-      // Обновляем данные после добавления
-      setTimeout(fetchItems, 500);
+      console.log('Продукт добавлен через Python API:', newItem);
+      
     } catch (err) {
       console.error('Error adding item:', err);
       setError(err.message || 'Ошибка добавления продукта');
     }
   };
 
-  const removeItem = async (id) => {
-    if (!window.confirm('Удалить этот продукт?')) return;
+const removeItem = async (id) => {
+  if (!window.confirm('Удалить этот продукт?')) return;
+  
+  try {
+    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/remove/${id}`, {
+      method: 'DELETE',
+    });
     
-    try {
-      const response = await fetch(`/py/items/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Ошибка при удалении');
-      }
-      
-      setItems(items.filter(item => item.id !== id));
-      setError('');
-      // Обновляем данные после удаления
-      setTimeout(fetchItems, 500);
-    } catch (err) {
-      console.error('Error deleting item:', err);
-      setError('Ошибка удаления продукта');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Ошибка при удалении');
     }
-  };
+    
+    const result = await response.json();
+    setItems(items.filter(item => item.id !== id));
+    setError('');
+    console.log('Продукт удален через Python API:', result.message);
+    
+  } catch (err) {
+    console.error('Error deleting item:', err);
+    setError(err.message || 'Ошибка удаления продукта');
+  }
+};
 
-  const toggleItemPosition = async (id) => {
-    try {
-      const response = await fetch(`/py/items/${id}/toggle`, {
-        method: 'PATCH',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Ошибка при перемещении');
-      }
-      
-      const updatedItem = await response.json();
-      setItems(items.map(item => 
-        item.id === id ? updatedItem : item
-      ));
-      setError('');
-    } catch (err) {
-      console.error('Error toggling item:', err);
-      setError('Ошибка перемещения продукта');
+const toggleItemPosition = async (id) => {
+  try {
+    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/move/${id}/toggle`, {
+      method: 'PATCH',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Ошибка при перемещении');
     }
-  };
+    
+    const updatedItem = await response.json();
+    setItems(items.map(item => 
+      item.id === id ? updatedItem : item
+    ));
+    setError('');
+    console.log('Позиция переключена через Python API:', updatedItem);
+    
+  } catch (err) {
+    console.error('Error toggling item:', err);
+    setError(err.message || 'Ошибка перемещения продукта');
+  }
+};
 
+
+  
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       addItem();
@@ -244,7 +253,7 @@ const Fridge = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleSearchKeyPress}
+            onKeyUp={handleSearchKeyPress}
             placeholder="Введите категорию или название продукта"
             style={{flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
           />
