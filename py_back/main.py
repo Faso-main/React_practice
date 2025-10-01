@@ -87,8 +87,8 @@ async def get_database_items():
         print(f"Ошибка при получении данных: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
-@app.post("/{RESOURCE}/items")
-async def create_item(item_data: dict):
+@app.post("/{RESOURCE}/items/add")
+async def add_item(item_data: dict):
     try:
         name = item_data.get("name", "").strip()
         is_in_fridge = item_data.get("isInFridge", True)

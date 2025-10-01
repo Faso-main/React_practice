@@ -120,7 +120,7 @@ const Fridge = () => {
     }
     
     try {
-      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items`, {
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
