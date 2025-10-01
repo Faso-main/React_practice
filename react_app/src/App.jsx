@@ -148,48 +148,53 @@ const Fridge = () => {
     }
   };
 
-  const removeItem = async (id) => {
-    if (!window.confirm('Удалить этот продукт?')) return;
+const removeItem = async (id) => {
+  if (!window.confirm('Удалить этот продукт?')) return;
+  
+  try {
+    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/${id}`, {
+      method: 'DELETE',
+    });
     
-    try {
-      const response = await fetch(`/${RESOURCE}/items/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Ошибка при удалении');
-      }
-      
-      setItems(items.filter(item => item.id !== id));
-      setError('');
-      // Обновляем данные после удаления
-      setTimeout(fetchItems, 500);
-    } catch (err) {
-      console.error('Error deleting item:', err);
-      setError('Ошибка удаления продукта');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Ошибка при удалении');
     }
-  };
+    
+    const result = await response.json();
+    setItems(items.filter(item => item.id !== id));
+    setError('');
+    console.log('Продукт удален через Python API:', result.message);
+    
+  } catch (err) {
+    console.error('Error deleting item:', err);
+    setError(err.message || 'Ошибка удаления продукта');
+  }
+};
 
-  const toggleItemPosition = async (id) => {
-    try {
-      const response = await fetch(`/${RESOURCE}/items/${id}/toggle`, {
-        method: 'PATCH',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Ошибка при перемещении');
-      }
-      
-      const updatedItem = await response.json();
-      setItems(items.map(item => 
-        item.id === id ? updatedItem : item
-      ));
-      setError('');
-    } catch (err) {
-      console.error('Error toggling item:', err);
-      setError('Ошибка перемещения продукта');
+const toggleItemPosition = async (id) => {
+  try {
+    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/${id}/toggle`, {
+      method: 'PATCH',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Ошибка при перемещении');
     }
-  };
+    
+    const updatedItem = await response.json();
+    setItems(items.map(item => 
+      item.id === id ? updatedItem : item
+    ));
+    setError('');
+    console.log('Позиция переключена через Python API:', updatedItem);
+    
+  } catch (err) {
+    console.error('Error toggling item:', err);
+    setError(err.message || 'Ошибка перемещения продукта');
+  }
+};
 
 
   

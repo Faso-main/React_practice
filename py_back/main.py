@@ -120,6 +120,81 @@ async def add_item(item_data: dict):
         print(f"Ошибка при добавлении товара: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
 
+@app.patch("/{RESOURCE}/items/move/{item_id}/toggle")
+async def toggle_item_position(item_id: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Получаем текущее состояние
+        cursor.execute("SELECT is_in_fridge FROM fridge_items WHERE id = %s", (item_id,))
+        current_item = cursor.fetchone()
+        
+        if not current_item:
+            raise HTTPException(status_code=404, detail="Товар не найден")
+        
+        # Меняем состояние
+        new_state = not current_item["is_in_fridge"]
+        cursor.execute(
+            "UPDATE fridge_items SET is_in_fridge = %s WHERE id = %s RETURNING *",
+            (new_state, item_id)
+        )
+        
+        updated_item = cursor.fetchone()
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        if updated_item:
+            action = "положен в холодильник" if new_state else "вынут из холодильника"
+            print(f"Товар '{updated_item['name']}' {action}")
+            return dict(updated_item)
+        else:
+            raise HTTPException(status_code=500, detail="Не удалось обновить товар")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ошибка при перемещении товара: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+
+@app.delete("/{RESOURCE}/items/remove/{item_id}")
+async def delete_item(item_id: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Сначала получаем информацию о товаре для логов
+        cursor.execute("SELECT name FROM fridge_items WHERE id = %s", (item_id,))
+        item = cursor.fetchone()
+        
+        if not item:
+            raise HTTPException(status_code=404, detail="Товар не найден")
+        
+        # Удаляем товар
+        cursor.execute("DELETE FROM fridge_items WHERE id = %s RETURNING *", (item_id,))
+        deleted_item = cursor.fetchone()
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        if deleted_item:
+            print(f"Удален товар: {item['name']}")
+            return {
+                "message": "Товар успешно удален",
+                "deleted_item": dict(deleted_item)
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Не удалось удалить товар")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Ошибка при удалении товара: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка базы данных: {str(e)}")
+
 @app.get("/{RESOURCE}/filter-by-category/{category}")
 async def filter_by_category(category: str):
     try:
