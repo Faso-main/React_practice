@@ -15,11 +15,12 @@ const Fridge = () => {
 
   // Python API URL
   const PYTHON_API_URL = 'https://faso312.ru';
+  const RESOURCE = 'py';
 
   // Загрузка категорий из Python
   const loadCategories = async () => {
     try {
-      const response = await fetch(`${PYTHON_API_URL}/py/categories`);
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/categories`);
       const data = await response.json();
       setCategories(data.categories);
     } catch (err) {
@@ -30,7 +31,7 @@ const Fridge = () => {
   // Загрузка статистики
   const loadStatistics = async () => {
     try {
-      const response = await fetch(`${PYTHON_API_URL}/py/statistics`);
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/statistics`);
       const data = await response.json();
       setStatistics(data);
     } catch (err) {
@@ -48,7 +49,7 @@ const Fridge = () => {
     try {
       console.log('Поиск через Python:', searchQuery);
       
-      const response = await fetch(`${PYTHON_API_URL}/py/search-products`, {
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/search-products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +82,7 @@ const Fridge = () => {
       setLoading(true);
       console.log('Загрузка данных из PostgreSQL через Python...');
       
-      const response = await fetch(`${PYTHON_API_URL}/py/database-items`);
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/database-items`);
       
       if (!response.ok) {
         throw new Error(`Python сервер недоступен: ${response.status}`);
@@ -119,7 +120,7 @@ const Fridge = () => {
     }
     
     try {
-      const response = await fetch(`${PYTHON_API_URL}/py/items`, {
+      const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -151,7 +152,7 @@ const Fridge = () => {
     if (!window.confirm('Удалить этот продукт?')) return;
     
     try {
-      const response = await fetch(`/py/items/${id}`, {
+      const response = await fetch(`/${RESOURCE}/items/${id}`, {
         method: 'DELETE',
       });
       
@@ -171,7 +172,7 @@ const Fridge = () => {
 
   const toggleItemPosition = async (id) => {
     try {
-      const response = await fetch(`/py/items/${id}/toggle`, {
+      const response = await fetch(`/${RESOURCE}/items/${id}/toggle`, {
         method: 'PATCH',
       });
       
@@ -247,7 +248,7 @@ const Fridge = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleSearchKeyPress}
+            onKeyUp={handleSearchKeyPress}
             placeholder="Введите категорию или название продукта"
             style={{flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '4px'}}
           />
