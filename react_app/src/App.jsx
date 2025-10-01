@@ -152,7 +152,7 @@ const removeItem = async (id) => {
   if (!window.confirm('Удалить этот продукт?')) return;
   
   try {
-    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/${id}`, {
+    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/remove/${id}`, {
       method: 'DELETE',
     });
     
@@ -174,7 +174,7 @@ const removeItem = async (id) => {
 
 const toggleItemPosition = async (id) => {
   try {
-    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/${id}/toggle`, {
+    const response = await fetch(`${PYTHON_API_URL}/${RESOURCE}/items/move/${id}/toggle`, {
       method: 'PATCH',
     });
     
